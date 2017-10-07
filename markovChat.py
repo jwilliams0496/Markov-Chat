@@ -33,34 +33,60 @@ class MarkovWord:
         self.next4 = next4
     
     def printMarkovWord(self):
-        print("[" + str(self.word) + ", " + str(self.freq) + ", " + str(self.next4) + "]")
+        print("[\'" + str(self.word) + "\', " + str(self.freq) + ", ", end = "")
+        
+        for mword in range(len(self.next4)):
+            print("[\'" + str(self.next4[mword].getWord()) + "\', "
+                    + str(self.next4[mword].getFreq()) + "]", end = " ")
+        
+        print("]")
 
 def main():
     response = input("Say something!: ")
 
     while(response != "quit"):
-        markov(response)
+        freqTable = generateFreqTable(response)
+        
+        
         response = input("Say something!: ")
         
 
-def markov(response):
+def generateFreqTable(response):
     usrStr = response.split()
     freqTable = []
     
     for word in range(len(usrStr)):
         
         freq = 0
-        # loop through all words in sentence to find matches
+        # loop through all words in sentence to find matches to get frequency
         for word2 in range(len(usrStr)):
             if usrStr[word] == usrStr[word2]:
                 freq += 1
 
-        markovWord = MarkovWord(usrStr[word], freq, [])
+        markovWord = MarkovWord(usrStr[word], freq/len(usrStr), [])
         freqTable.append(markovWord)
         
+    next4 = []
+    word = 0
+    
     for mword in range(len(freqTable)):
-        for word in range(len(usrStr)):
-            #todo
+        next4 = []
+        if word < len(usrStr) -4:
+            next4.append(freqTable[word + 1])
+            next4.append(freqTable[word + 2])
+            next4.append(freqTable[word + 3])
+            next4.append(freqTable[word + 4])
+            
+        freqTable[mword].setNext4(next4)
+        word += 1
+        
+    for mword in range(len(freqTable)):
+        freqTable[mword].printMarkovWord()
+        
 
+    return freqTable
+
+def condense(freqtable):
+    return
         
 main()
