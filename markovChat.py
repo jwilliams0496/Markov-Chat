@@ -5,6 +5,7 @@ Created on Sat Oct  7 11:18:31 2017
 
 @author: MarbleCake
 """
+from random import randint
 
 class MarkovWord:
     
@@ -23,6 +24,21 @@ class MarkovWord:
     def getNext4(self):
         return self.next4
     
+    def getPhrase(self):
+        phrase = ""
+        
+        if len(self.getNext4()) == 0:
+            return
+        
+        phrase += self.getWord() + " "
+        next4 = self.getNext4()
+        phrase += next4[0].getWord() + " "
+        phrase += next4[1].getWord() + " "
+        phrase += next4[2].getWord() + " "
+        phrase += next4[3].getWord() + " "
+    
+        return phrase
+    
     def setWord(self, word):
         self.word = word
         
@@ -36,19 +52,22 @@ class MarkovWord:
         print("[\'" + str(self.word) + "\', " + str(self.freq) + ", ", end = "")
         
         for mword in range(len(self.next4)):
-            print("[\'" + str(self.next4[mword].getWord()) + "\', "
-                    + str(self.next4[mword].getFreq()) + "]", end = " ")
+            print("[\'" + str(self.next4[mword].getWord()) + "\', " + str(self.next4[mword].getFreq()) + "]", end = " ")
         
         print("]")
 
 def main():
-    response = input("Say something!: ")
+    user = input("Say something!: ")
+    print("")
 
-    while(response != "quit"):
-        freqTable = generateFreqTable(response)
+    while(user != "quit"):
+        freqTable = generateFreqTable(user)
+                
+        generateResponse(freqTable)
         
+        print("")
         
-        response = input("Say something!: ")
+        user = input("Say something!: ")
         
 
 def generateFreqTable(response):
@@ -80,13 +99,37 @@ def generateFreqTable(response):
         freqTable[mword].setNext4(next4)
         word += 1
         
-    for mword in range(len(freqTable)):
-        freqTable[mword].printMarkovWord()
-        
-
     return freqTable
+    
+# finds closest word that matches frequency
+def getMwordFromFreq(freqTable, freq):
+    dist = 1
+    word = freqTable[-1]
+    
+    for mword in range(len(freqTable)):
+        if abs(freqTable[mword].getFreq() - freq) < dist:
+            dist = abs(freqTable[mword].getFreq() - freq)
+            word = freqTable[mword]
+    
+    return word
 
-def condense(freqtable):
-    return
+def generateResponse(freqTable):
+    response = ""
+    
+    start = randint(0, len(freqTable) - 1)
+    response += freqTable[start].getPhrase() + " "
+    nextFreq = (freqTable[start].getNext4()[0].getFreq() + freqTable[start].getNext4()[1].getFreq() + freqTable[start].getNext4()[2].getFreq() + freqTable[start].getNext4()[3].getFreq()) / 4
+
+    for mword in range(len(freqTable) // 4):    
+        nextMword = getMwordFromFreq(freqTable, nextFreq)
+        response += nextMword.getPhrase() + " "
+    
+        if (len(nextMword.getNext4()) > 0):
+            nextFreq = (nextMword.getNext4()[0].getFreq() + nextMword.getNext4()[1].getFreq() + nextMword.getNext4()[2].getFreq() + nextMword.getNext4()[3].getFreq()) / 4
         
+    print(response)
+    
+        
+    
+
 main()
